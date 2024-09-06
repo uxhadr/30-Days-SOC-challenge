@@ -80,7 +80,7 @@ I went back to the terminal and generated the ecryption keys
 I added the encryption keys and restarted kibana:
 <img width="1047" alt="image" src="https://github.com/user-attachments/assets/68d1f2dd-77ef-420b-972b-86068b2b2fdc">
 
-I no longer so the message under security alerts 
+I no longer saw the message under security alerts 
 <img width="1504" alt="image" src="https://github.com/user-attachments/assets/d55fbfcc-62b3-451b-ac5e-777679d883e1">
 
 
