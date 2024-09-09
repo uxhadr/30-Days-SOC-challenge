@@ -160,36 +160,58 @@ I disabled IPv6 and opted out of Virtual Private Cloud 2.0 to ensure that the Wi
 
 **Fleet Server**: Fleet Server is a component responsible for managing and coordinating communication between Elastic Agents and the Elastic Stack. It serves as a central hub for enrolling, configuring, and monitoring Elastic Agents in real time. Fleet Server facilitates large-scale deployments of Elastic Agents, ensuring proper management and monitoring. It simplifies scaling, configuration management, and agent activity monitoring.
 
+
 **DAY 7: ELASTIC AGENT AND FLEET SERVER SETUP**
-I clicked on deploy new server, and selected the same city again. For the image I selected Ubuntu 22.04. I selected VPC 2.0 and connected it to the VPC network I created earlier.
-Went to the elastic website and selected fleet under management.
-Clicked odn add Fleet Server and then clicked on Quick Start
-FOr the host URL i put https://the public IP of the Fleet Server
-<img width="1415" alt="image" src="https://github.com/user-attachments/assets/1d7c872e-7fd4-4927-b699-ca48a66601ed">
-I then sshed into the fleet server. I updated my repositories with the command: 'apt-get update && apt-get upgrade -y'
-I went back to the elastic webpage and copied the installation and pasted it to the Fleet server's terminal inoreder to install the agent.
-<img width="1503" alt="image" src="https://github.com/user-attachments/assets/e0a71fcb-4884-44e0-b269-430ba2cf7c2c">
-I modified the ELK server firewall to allow the Fleet server to communicate with the ELK server. I added the fleet server's public IP address to the firewall rules.
-On the terminal for the ELK server I set the firewall to allow port 9200 because that's the port  elasticsearch listens on by default.
-<img width="635" alt="image" src="https://github.com/user-attachments/assets/a8e3f679-b6a8-48a4-a308-2586f9c05fdf">
 
-After succesful installation, I went back to the elastic website the fleet server was successfully connected. I clicked on continue enrolling elastic Agent. I created a policy named 'SOC-Windows-Policy" and selected and copied the Windows installation that I would install on the Windows server.
-<img width="903" alt="image" src="https://github.com/user-attachments/assets/b0cd1e6b-6193-4553-955d-57edba91494b">
-I opened powershell and pasted the installetion 
-<img width="1053" alt="image" src="https://github.com/user-attachments/assets/e74cd772-d343-4fc2-8da5-0ac50bc6ba91">
+1. **Deploying the Fleet Server**  
+   I clicked on "Deploy New Server" and selected the same city as my previous setup. For the image, I chose Ubuntu 22.04, and connected it to the VPC network I created earlier using VPC 2.0.
 
-The installation failed because of a firewall rule. i wen to my fleet server terminal and allowed port 8220: ufw allow 8220
-I got an error agian and saw that my agent was trying to access port 443, so i added 443 to the firewall.
+2. **Fleet Server Setup**  
+   In the Elastic Management Console, I navigated to **Fleet** under **Management**. I clicked on **Add Fleet Server** and selected **Quick Start**.  
+   For the **Host URL**, I used the public IP of the Fleet Server.  
 
-I got an errror againand after troubleshooting I went to the elastic server and realized that it was set to use port 443 instead of 8220. so I changed it to 8220 and waited to see.
-<img width="1511" alt="image" src="https://github.com/user-attachments/assets/dab4cfaf-6a88-46fc-a19e-8155f947367e">
+   ![Fleet Server Setup](https://github.com/user-attachments/assets/1d7c872e-7fd4-4927-b699-ca48a66601ed)
 
-I reran the command again but I changed the port number to 8220 and put --insecure at the end because I didn't have a certificate authority. It worked and the agent successfully installed.
-<img width="1359" alt="image" src="https://github.com/user-attachments/assets/a371ac1e-d5e4-4389-a66d-56b31c99044b">
-I went back to the elastic web page and saw that the Windows server successfully enrolled into our fleet.
-<img width="1512" alt="image" src="https://github.com/user-attachments/assets/cfc518ac-0e8c-4958-b8dd-61c771d8a8d0">
-I clicked on discover and saw that there were some logs
-<img width="1512" alt="image" src="https://github.com/user-attachments/assets/a9c00ba0-90f2-4982-89b9-ecf532476b4f">
+3. **SSH into the Fleet Server**  
+   I SSHed into the Fleet Server and updated the system by running:  
+   ```bash
+   apt-get update && apt-get upgrade -y
+   ```  
+   After updating, I went back to the Elastic webpage, copied the installation command for the Elastic Agent, and pasted it into the Fleet Server terminal to begin the installation.
+
+   ![Elastic Agent Installation](https://github.com/user-attachments/assets/e0a71fcb-4884-44e0-b269-430ba2cf7c2c)
+
+4. **Configuring Firewall Rules**  
+   To allow the Fleet Server to communicate with the ELK server, I modified the ELK server firewall by adding the Fleet Server's public IP address. I also allowed port **9200**, as it’s the default port for Elasticsearch.
+   ![Firewall Configuration](https://github.com/user-attachments/assets/a8e3f679-b6a8-48a4-a308-2586f9c05fdf)
+
+5. **Fleet Server Connected**  
+   After a successful installation, I returned to the Elastic webpage and confirmed that the Fleet Server was connected. I clicked **Continue** to begin enrolling the Elastic Agent. I then created a policy named **SOC-Windows-Policy** and copied the Windows installation command for later use on the Windows Server.
+
+   ![Fleet Server Connected](https://github.com/user-attachments/assets/b0cd1e6b-6193-4553-955d-57edba91494b)
+
+6. **Elastic Agent Installation on Windows Server**  
+   I opened PowerShell on the Windows server and pasted the installation command, but the installation failed due to a firewall rule. To fix this, I allowed port **8220** on the Fleet Server:  
+
+   ```bash
+   ufw allow 8220
+   ```
+
+7. **Troubleshooting and Resolution**  
+   I encountered another error related to port **443**. After inspecting the Fleet Server, I realized that it was set to use **port 443** instead of **8220**, so I corrected the configuration.
+
+   I reran the command  on powershell, this time changing the port to **8220** and adding the `--insecure` flag, as I didn't have a certificate authority. The agent installed successfully.
+   ![Elastic Agent Installation Successful](https://github.com/user-attachments/assets/a371ac1e-d5e4-4389-a66d-56b31c99044b)
+
+8. **Final Verification**  
+   After installation, I returned to the Elastic console and confirmed that the Windows Server was successfully enrolled into the fleet.
+
+   ![Windows Server Enrolled](https://github.com/user-attachments/assets/cfc518ac-0e8c-4958-b8dd-61c771d8a8d0)
+
+9. **Viewing Logs in Discover**  
+   I clicked on **Discover** in the Elastic console and confirmed that logs were being successfully collected from the Windows Server.
+
+   ![Logs in Discover](https://github.com/user-attachments/assets/a9c00ba0-90f2-4982-89b9-ecf532476b4f)
 
 
 
