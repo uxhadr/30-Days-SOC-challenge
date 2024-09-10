@@ -186,7 +186,7 @@ I disabled IPv6 and opted out of Virtual Private Cloud 2.0 to ensure that the Wi
    ![Firewall Configuration](https://github.com/user-attachments/assets/a8e3f679-b6a8-48a4-a308-2586f9c05fdf)
 
 5. **Fleet Server Connected**  
-   After a successful installation, I returned to the Elastic webpage and confirmed that the Fleet Server was connected. I clicked **Continue** to begin enrolling the Elastic Agent. I then created a policy named **SOC-Windows-Policy** and copied the Windows installation command for later use on the Windows Server.
+   After successfully installing, I returned to the Elastic webpage and confirmed that the Fleet Server was connected. I clicked **Continue** to begin enrolling the Elastic Agent. I then created a policy named **SOC-Windows-Policy** and copied the Windows installation command for later use on the Windows Server.
 
    ![Fleet Server Connected](https://github.com/user-attachments/assets/b0cd1e6b-6193-4553-955d-57edba91494b)
 
@@ -200,7 +200,7 @@ I disabled IPv6 and opted out of Virtual Private Cloud 2.0 to ensure that the Wi
 7. **Troubleshooting and Resolution**  
    I encountered another error related to port **443**. After inspecting the Fleet Server, I realized that it was set to use **port 443** instead of **8220**, so I corrected the configuration.
 
-   I reran the command  on powershell, this time changing the port to **8220** and adding the `--insecure` flag, as I didn't have a certificate authority. The agent installed successfully.
+   I reran the command  on Powershell, this time changing the port to **8220** and adding the `--insecure` flag, as I didn't have a certificate authority. The agent was installed successfully.
    ![Elastic Agent Installation Successful](https://github.com/user-attachments/assets/a371ac1e-d5e4-4389-a66d-56b31c99044b)
 
 8. **Final Verification**  
@@ -213,10 +213,55 @@ I disabled IPv6 and opted out of Virtual Private Cloud 2.0 to ensure that the Wi
 
    ![Logs in Discover](https://github.com/user-attachments/assets/a9c00ba0-90f2-4982-89b9-ecf532476b4f)
 
+**DAY 8: WHAT IS SYSMON?**
+
+On Windows endpoints, logging is enabled by default, but the built-in log settings often lack the depth required for effective monitoring in security operations. **Sysmon** (System Monitor) is a free, powerful tool from Microsoft that enhances the default logging capabilities and provides detailed information about various system activities.
+
+### What Sysmon Monitors:
+- **Process Creation (Event ID 1)**: Logs whenever a process is created. This includes information such as process name, process ID (PID), and the user account that executed the process.
+- **Network Connections (Event ID 3)**: Captures network connection details, including source IP, destination IP, source port, destination port, and the process involved in making the connection. This is extremely useful for network forensics and tracing back malicious connections to a specific process.
+- **File Creations**: Logs whenever new files are created on the system, helping to detect unauthorized file modifications or malware installations.
+- **Hashes of Executables**: Sysmon can generate cryptographic hashes of executables, which can be valuable for OSINT (Open-Source Intelligence) and comparing files against known malicious software.
+  
+### Process GUID and Event Correlation:
+Each process logged by Sysmon is assigned a **Process GUID** (Globally Unique Identifier), which remains consistent across multiple events related to the same process. This allows analysts to easily correlate different logs, even if the process ID changes (which happens when a process terminates and a new one starts).
+
+### Additional Sysmon Events:
+- **Event ID 6**: Captures driver loading, useful for identifying potentially malicious drivers loaded onto the system.
+- **Event ID 7**: Logs image loading, providing insight into libraries and DLLs being loaded by processes.
+- **Event ID 8**: Detects the creation of remote thread injections, which could indicate malicious code injection techniques used by attackers.
+- **Event ID 10**: Identifies process access, which logs when one process gains access to another (often a sign of malicious activity such as privilege escalation).
+- **Event ID 22**: Logs DNS queries, which can reveal suspicious domain lookups and potential command-and-control (C2) activity, crucial for threat detection involving malware or phishing attempts.
 
 
+### **Day 9: Sysmon Setup**
 
+ I set up **Sysmon** (v15.5) on my Windows server to improve system monitoring capabilities. Below are the steps I followed:
 
+1. **Accessing the Server**:  
+   I used **RDP** to connect to the Windows Server.
+
+2. **Downloading Sysmon**:  
+   Opened **Microsoft Edge**, searched for "Sysmon," and downloaded the latest version (**v15.5**) from the official Sysinternals page.
+   ![Download Sysmon](https://github.com/user-attachments/assets/41a01ca4-c4c3-4cf1-84ea-e662ce737243)
+
+3. **Extracting Sysmon**:  
+   After downloading, I located the zip file, right-clicked on it, and selected **Extract All** to unpack the files.
+   ![Extract Sysmon](https://github.com/user-attachments/assets/ae05211b-fadb-4c71-abe6-a3eac62ea5a7)
+
+4. **Downloading the Sysmon Configuration File**:  
+   I navigated to the **Sysmon Olaf Configuration File** repository on GitHub, saved the file as raw, and placed it in the Sysmon folder.
+
+5. **Installing Sysmon**:  
+   I opened **PowerShell as an Administrator**, navigated to the folder where the Sysmon configuration file was saved, and ran the following commands to install Sysmon and apply the configuration:
+   ```powershell
+   .\Sysmon64.exe
+   .\Sysmon64.exe -i sysmonconfig.xml
+   ```
+
+6. **Verifying Sysmon Installation**:  
+   I checked **Services** to confirm Sysmon was active and opened **Event Viewer** to verify that Sysmon logs were being generated.
+   ![Sysmon Logs in Event Viewer](https://github.com/user-attachments/assets/764a3358-f39d-4814-884b-2d79c2985f06)
 
 
 
