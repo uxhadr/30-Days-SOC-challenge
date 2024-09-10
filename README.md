@@ -264,6 +264,33 @@ Each process logged by Sysmon is assigned a **Process GUID** (Globally Unique Id
    ![Sysmon Logs in Event Viewer](https://github.com/user-attachments/assets/764a3358-f39d-4814-884b-2d79c2985f06)
 
 
+### **Day 10: Ingesting Data With Elasticsearch**
+
+1. **Custom Windows Event Logs Integration:**
+   - Navigated to the Elasticsearch homepage and clicked on 'Add integrations.'
+   - Selected 'Custom Windows Event Logs' and added the integration.
+   - For the channel name, I used `Microsoft-Windows-Sysmon/Operational`, which I identified by opening the Window's Server Event Viewer, navigating to Sysmon, right-clicking on 'Operational,' and selecting 'Properties.'
+     ![Sysmon Channel](https://github.com/user-attachments/assets/866c4715-629c-4d51-9a06-2ee9b9fd3782)
+   - Assigned this integration to the previously created Agent policy: `SOC-Windows-policy 1`
+   - Clicked 'Save and Continue,' then `Save and Deploy`.
+
+2. **Defender Logs Integration:**
+   - Created another integration for Windows Defender Logs.
+   - Found the channel name by going to the Event Viewer, selecting `Windows Defender,`. right-clicking `Operational,` and clicking on `Properties`.
+     ![Defender Logs Channel](https://github.com/user-attachments/assets/4ca2f9ba-bab9-4699-8779-338fd306af31)
+   - To limit the number of informational logs, I chose the following event IDs: 116, 117, 5001. In the advanced settings, I entered these event IDs and added the integration to the 'SOC-Windows-policy 1.'
+   - Saved and deployed the changes.
+     ![Event IDs Configuration](https://github.com/user-attachments/assets/4dc88d3c-809f-488b-bdb4-d75740499bae)
+
+3. **Troubleshooting and Verification:**
+   - Initially, I could not see any Sysmon logs under the 'Discover' tab in Elasticsearch.
+   - I Restarted the Elastic Agent service on the Windows Server.
+   - Adjusted the firewall settings to allow traffic on port 9200.
+   - After making these adjustments, I was able to see Sysmon logs in Elasticsearch.
+     ![Sysmon Logs](https://github.com/user-attachments/assets/6a18caeb-5be2-4428-a183-f3b35b2ee641)
+
+
+
 
 
 
