@@ -289,8 +289,57 @@ Each process logged by Sysmon is assigned a **Process GUID** (Globally Unique Id
    - After making these adjustments, I was able to see Sysmon logs in Elasticsearch.
      ![Sysmon Logs](https://github.com/user-attachments/assets/6a18caeb-5be2-4428-a183-f3b35b2ee641)
 
+### **Day 11: Brute Force Attack**
+A **Brute Force Attack** is a trial-and-error method used by attackers to guess login credentials or encryption keys by systematically trying every possible combination until the correct one is found. This attack is commonly used when weak passwords or limited security measures are in place, exploiting the vast number of potential guesses. Although time-consuming and resource-intensive, brute force attacks can be successful against systems with inadequate protection, making strong passwords and account lockout mechanisms essential defense measures.
+
+### **Day 12: Ubuntu Server 24.04 Installation**
+I clicked on `Deploy New Server` and chose a `cloud compute-shared CPU` since I didn’t need a powerful server. I selected the same city as the other servers and chose Ubuntu 24.04 as the image. I left the server settings as default.
+
+Once the server was running, I used a Linux VM to SSH into it. I updated the server from the terminal and checked the `auth.log` file to see if there were any failed logins, but since I had just opened the server, nothing was there. I ran the command `grep -i failed auth.log`, and nothing showed up.  
+![image](https://github.com/user-attachments/assets/5c19fa18-57a9-4fe7-bef3-227b6b1df262)
+
+After waiting 45 minutes, I ran the command again, and this time, there were several failed logins.  
+![image](https://github.com/user-attachments/assets/006c1b27-b4a4-42f3-a489-fdaeb8d7d409)
+
+I wanted to filter the output to only display the IP addresses of users attempting to use the root command. Since the IP address was the 9th delimiter, I used the command `grep -i failed auth.log | grep -i root | cut -d ' ' -f 9`to extract it.  
+![image](https://github.com/user-attachments/assets/790964cb-ca35-48f4-8b83-6248b6066229)
+All the attempts seemed to come from the same IP address. 
 
 
+### **Day 13: Installing Elastic Agent on Ubuntu**
+I navigated to the Fleet section of Elastic, created a new agent policy named `Ubuntu-SSH-Policy`, and selected it.
 
+Next, I went back to Fleet, clicked on `Add Agent`, selected the `Ubuntu-SSH-Policy`, and clicked on `Enroll in Fleet`. I chose `Linux Tar` for installation and copied the command.  
+![image](https://github.com/user-attachments/assets/739eb0f9-789f-4d19-978b-89362de600e0)
 
+After running the command on the Ubuntu terminal, I encountered the following error:  
+`Error: fail to enroll: fail to execute request to fleet-server: x509: certificate signed by unknown authority`.  
+To resolve this, I added `--insecure` to the command, since I didn’t have a self-signed certificate.
 
+After rerunning the command, the agent successfully enrolled.  
+![image](https://github.com/user-attachments/assets/76ba3fc7-bf17-4743-96d4-8359feee7b73)
+
+I then went to the `Discover` section in Elastic, and the Ubuntu server appeared under the list of agents.
+
+Returning to the Ubuntu terminal, I checked the `auth.log` file again and noticed a new IP address with failed login attempts. I copied the IP address with the most failed attempts and pasted it into Elastic.  
+![image](https://github.com/user-attachments/assets/390e0546-bb63-4ed4-bc48-47e1d662ac0b)  
+There were 177 events showing authentication failures from this IP address.
+
+### **Day 14: Creating Alerts and Dashboards in Kibana**
+In Elastic, I clicked on `Discover`, filtered the results to show only the Ubuntu server agent, and added `system.auth.ssh.event`, `user.name`, and `source.ip` as columns. I filtered the results to display only failed attempts and saved it as `SSH failed activity`.  
+![image](https://github.com/user-attachments/assets/2887306e-e551-42f8-8a0f-1c433fa730b5)
+
+I created a new rule from this search query and named it `SSH Brute Force Activity`. I configured the rule to alert me if there were 5 failed login attempts within 5 minutes. Though not perfect, it served as a basic test for the lab.  
+![image](https://github.com/user-attachments/assets/92abdf6e-e4b9-44ed-8f9f-8eea9ab9937c)
+
+Next, I went to the `Maps` section and typed the following into the search:  
+`system.auth.ssh.event:*` and `agent.name:"Ubuntu-SSH-Server"` and `system.auth.ssh.event:"Failed"`
+
+I clicked `Add Layer`, selected `Choropleth`, chose `Administrative Boundaries`, and then under EMS, selected `World Countries`. For the data view, I used the query we had just defined.  
+![image](https://github.com/user-attachments/assets/5dae236f-99cd-4c68-a49b-109fbf6b8e0b)
+
+I saved this visualization as `SSH Failed Authentications Network Map` and added it to a new dashboard.  
+![image](https://github.com/user-attachments/assets/110171e9-e254-4564-9eb6-3b878186fbd2)
+
+I duplicated the map, modified the query to show both `failed` and  `accepted` attempts.
+![image](https://github.com/user-attachments/assets/669422bd-237b-4f5e-ad63-ea4610e96294)
