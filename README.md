@@ -343,3 +343,84 @@ I saved this visualization as `SSH Failed Authentications Network Map` and added
 
 I duplicated the map, modified the query to show both `failed` and  `accepted` attempts.
 ![image](https://github.com/user-attachments/assets/669422bd-237b-4f5e-ad63-ea4610e96294)
+
+### **Day 15: Remote Desktop Protocol (RDP)**
+
+**Overview:**
+Remote Desktop Protocol (RDP) is a widely used tool that allows users to remotely connect to and control systems over a network. While it provides convenience for administrators and users working offsite, RDP can be a major security risk if not properly secured. If attackers gain access through RDP, they can exploit it to steal credentials (known as credential dumping) and move laterally across the network, compromising other systems. This makes RDP a significant attack vector, especially when it's exposed to the internet without adequate protection.
+
+**Identifying Open RDP Ports:**
+Tools like **Shodan** and **Censys** allow you to search for open RDP ports (3389) and identify exposed systems. If you find an open RDP port in your organization, evaluate if it's necessary. If not, **disable RDP**. If needed, ensure it's behind a firewall and accessible only via a **VPN**.
+
+**Protecting Against Unauthorized RDP Access:**
+To secure RDP, follow these best practices:
+1. **Turn off RDP** when not in use.
+2. **Use Multi-Factor Authentication (MFA)** for an added layer of security.
+3. **Restrict access** by limiting RDP to specific IP addresses.
+4. **Strengthen passwords** and use **Privileged Access Management (PAM)** to monitor sessions.
+5. **Disable or rename default accounts** like Administrator to prevent easy exploitation.
+
+These steps will help secure your network from RDP-based attacks.
+
+
+### **Day 16: Creating Alerts and Dashboards in Kibana**
+
+Today, I focused on setting up alerts and dashboards in Kibana to monitor failed login attempts, particularly through Remote Desktop Protocol (RDP) and Secure Shell (SSH) brute force attempts.
+
+To start, I navigated to Elastic's "Discover" section, selected `agent.name`, and filtered for my Windows Server. I knew that failed login attempts are logged under Event ID 4625, so I entered `event.code:4625` in the query to narrow the results. From there, I added filters for the source IP and username to get a clearer picture of what was happening.
+
+Once I had everything in place, I saved the query as **RDP failed activity**. To test the setup, I attempted an RDP login from a virtual machine, expecting it to fail. Sure enough, Kibana captured the failed attempt!
+ 
+![Failed Login Display](https://github.com/user-attachments/assets/725e4822-0fb5-407c-8048-59a0afda7f85)
+
+With the failed login attempt visible, I proceeded to create an alert. By selecting **Alerts** and clicking on **Create search threshold rule**, I named the rule **RDP Brute Force Activity** and set it to trigger when there were more than 5 failed attempts. I then went to **Management** > **Stack Management** > **Alerts** to confirm the alert was being generated.
+
+However, I quickly noticed the alert lacked crucial information—it didn’t show the affected user or the source IP. To address this, I decided to recreate the rule under the **Security** section for more detailed results.
+
+Under **Security** > **Rules** > **Detection rules (SIEM)**, I created a new threshold rule. For my custom query, I used:
+
+```bash
+system.auth.ssh.event: "Failed" AND agent.name: "Ubuntu-SSH-Server" AND user.name: "root"
+```
+
+I grouped the results by `user.name` and `source.ip`, naming this rule **SSH Brute Force Attempt**. The rule was set to run every 5 minutes with a 5-minute look-back period, ensuring that any new attempts would be detected quickly.
+
+![SSH Brute Force Rule](https://github.com/user-attachments/assets/01bde113-1db2-4b89-8409-82c09a3fe066)
+
+I replicated this process for my Windows server, using a similar query:
+
+```bash
+system.auth.ssh.event: "Failed" AND agent.name: "Windows-Server" AND user.name: "Administrator"
+```
+
+With both rules in place, I ensured continuous monitoring of potential brute force activities across both SSH and RDP connections.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
