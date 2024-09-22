@@ -371,7 +371,8 @@ To start, I navigated to Elastic's "Discover" section, selected `agent.name`, an
 
 Once I had everything in place, I saved the query as **RDP failed activity**. To test the setup, I attempted an RDP login from a virtual machine, expecting it to fail. Sure enough, Kibana captured the failed attempt!
  
-![Failed Login Display](https://github.com/user-attachments/assets/725e4822-0fb5-407c-8048-59a0afda7f85)
+<img width="1265" alt="image" src="https://github.com/user-attachments/assets/f5117f21-ec96-47d6-8760-bb4ce6158302">
+
 
 With the failed login attempt visible, I proceeded to create an alert. By selecting **Alerts** and clicking on **Create search threshold rule**, I named the rule **RDP Brute Force Activity** and set it to trigger when there were more than 5 failed attempts. I then went to **Management** > **Stack Management** > **Alerts** to confirm the alert was being generated.
 
@@ -395,6 +396,24 @@ system.auth.ssh.event: "Failed" AND agent.name: "Windows-Server" AND user.name: 
 
 With both rules in place, I ensured continuous monitoring of potential brute force activities across both SSH and RDP connections.
 
+### **Day 17: Creating Alerts and Dashboards in Kibana related to RDP**
+Went to maps and typed in the following query: ' event.code: "4625" and agent.name: "Windows-Server" '.
+I clicked on add layer then selected "Choropleth", and chose "World Countries" for the EMS Boundaries.
+![image](https://github.com/user-attachments/assets/c6562806-02ed-468b-8387-df35698fef68)
+I was surprised to see over 46,000 failed RDP events coming from Australia.
+I named it "RDP Failed Authentication" and saved it to the dashboard that I created earlier.
+
+I decided to create a new map with succesful RDP authentication focusing on RDP Logon type 10 abd type 7 using the following query: ' event.code: "4624" and (winlog.event_data.LogonType 7 or winlog.event_data.LogonType 10) and agent.name: "Windows-Server" '
+![image](https://github.com/user-attachments/assets/0c563f01-8047-40a8-a83f-7b496aee8c93)
+
+I went to discover and create a field that showerd the timestamp,country nae, source Ip , and username
+![image](https://github.com/user-attachments/assets/e3168441-a29d-4969-972d-e1fd45f4d26f)
+
+I clicked on create visualization and I pasted in the failed SSH query. I added the following values to be displayed: username, country name, source IP.
+I sorted the count of records to descending. I saved it and named it "SSH Failed Authentications [Table]". I duplicated it and created a table to show successful SSH authentications.
+<img width="1271" alt="image" src="https://github.com/user-attachments/assets/2e9868ff-3fa7-446d-930b-8f819e0f65af">
+I did the same thing for the RDP Authentications
+<img width="1505" alt="image" src="https://github.com/user-attachments/assets/d05fb258-dace-40b1-83bd-31d2623d0336">
 
 
 
