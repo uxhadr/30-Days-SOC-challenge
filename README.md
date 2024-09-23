@@ -415,6 +415,26 @@ I sorted the count of records to descending. I saved it and named it "SSH Failed
 I did the same thing for the RDP Authentications
 <img width="1505" alt="image" src="https://github.com/user-attachments/assets/d05fb258-dace-40b1-83bd-31d2623d0336">
 
+### **Day 18: Command and Control**
+The MITRE ATT&CK framework explains that a C2 is what the adversary uses to try and communicate with compromised systems to control them. Is when an attacker would have access to a victim's computer to perfom the actions they want to help them meet their actions and objectives.
+C2 usually involves two objectives: The command center- server or network location controlled by the attacker, and the compromised systems- the devices that have been infected with malware, allowing them to communicate with the command center.
+
+### **Day 19: Creating an Attack Diagram**
+Phase 1: Initial Access- Perform a Brute Force attack against the Windows server until we get a successful authentication 
+![image](https://github.com/user-attachments/assets/d0bee4a2-2707-4fad-a066-8fca9445a5f7)
+Phase 2: Discovery- Perform Discovery commands like whoami, ipconfig, net user, and net group
+![image](https://github.com/user-attachments/assets/388ca39b-099e-415d-956e-59fecdc7da8e)
+Phase 3: Defense Evasion- With an RDP established session, we will disable Windows Defender on the Windows server. 
+![image](https://github.com/user-attachments/assets/9bd6cc27-0dfc-45c9-ae8f-fcea56dd3b4d)
+Phase 4: Execution- We will use PowerShell Invoke Expression to download Mythic Agent on our C2 server. Once it is downloaded, we will execute it
+![image](https://github.com/user-attachments/assets/ee01f372-9af1-4ec3-a18a-0b1b699c17f3)
+Phase 5: Command & Control
+![image](https://github.com/user-attachments/assets/62f8d804-e550-4d30-994c-e5d6d979c8dd)
+Phase 6: Exfiltration. We will use the C2 server to download the passwords file off the Windows server
+![image](https://github.com/user-attachments/assets/5efbfc42-90ba-4820-9c6b-5b629a4f6791)
+
+### **Day 20: Mythic Server setup**
+On VULTR, I clicked on deploy 
 
 
 
