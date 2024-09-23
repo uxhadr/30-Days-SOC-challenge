@@ -434,16 +434,18 @@ Phase 6: Exfiltration. We will use the C2 server to download the passwords file 
 ![image](https://github.com/user-attachments/assets/5efbfc42-90ba-4820-9c6b-5b629a4f6791)
 
 ### **Day 20: Mythic Server setup**
-On VULTR, I clicked on deploy 
-
-
-
-
-
-
-
-
-
+On VULTR, I clicked on deploy new server and then "cloud compute- Shared CPU". For the OS I selceted Ubuntu 22.04, It is recommended to run Mythic on a machine with atleast 2CPus and 4GBs of RAM. I named the server "Mythic C2". I logged into my Kali VM and SSHed into the Mythic server.
+First thing I did was updated and upgraded the repositories. I installed docker: "apt install docker-compose", then I confirmed that make was already installed on the machine. I cloned the mythic git repository: "git clone https://github.com/its-a-feature/Mythic"
+I navigated into the Mythic direcotry and ran: "./install_docker_ubuntu.sh"
+![image](https://github.com/user-attachments/assets/2e7a4c05-3620-4ee5-b2f8-a41e5eec5dfa)
+I then ran the command make. I got an error so I checked to see if docker was running using the cmd: "systemctl status docker" and saw that docker wasn't active. I restarted docker: "systemctl restart docker". I confirmed that docker was now active.
+I typed in make again and started the mythic cli: "./mythic-cli start"
+I went back to VULTR and created a firewall to only allow my computer to connect to the Mythic server. I also added the Windows Server and the Ubuntu Server to also be able to connect to the Mythic Server.
+To login to Mythic, I copied the Mythic's server public IP and added port 7443, and https: "https://149.28.88.178:7443".
+By default the username is "mythic_admin".
+For the password I went to linux terminal and typed in "ls -la" to see all the files including the hidden ones. I was looking for the ".env" file which has all the mythic configuration details.
+I was looking for the admin password so I ran the cmd: "cat .env | grep ADMIN"
+![image](https://github.com/user-attachments/assets/c583a4b3-6a57-4766-b256-e3db76049455)
 
 
 
