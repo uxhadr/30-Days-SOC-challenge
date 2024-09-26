@@ -447,6 +447,27 @@ For the password I went to linux terminal and typed in "ls -la" to see all the f
 I was looking for the admin password so I ran the cmd: "cat .env | grep ADMIN"
 ![image](https://github.com/user-attachments/assets/c583a4b3-6a57-4766-b256-e3db76049455)
 
+### **Day 21: Mythic Agent setup**
+I opened up my Windows document and created a text file named passwords under the documents folder. In the passwords file I typed in "Winter2024!" which is the new password to my Windows Server.
+I opened my VM in Kali Linux and navigated to "/usr/share/wordlists". I then typed in the command "sudo ginzip rockyou.txt.gz" to unzip "rockyou". I then ran the cmd: "cat rockyou.txt".
+The password list was large so I typed in "head -50 rockyou.txt > home/user/user-wordlist.txt".
+I navigated to home and then typed in: "cat the user-wordlist.txt"
+![image](https://github.com/user-attachments/assets/49ca6e98-cf05-4289-b701-f563f9fd9042)
+I opened the wordlist and add the bottom I added in the windows Server password- "Winter2024!"
+Next I installed crowbar with command: "sudo apt-get install -y crowbar"
+I got an error. I update my repositories with: "sudo apt-get update && sudo apt-get upgrade -y"
+I ran the command to install crowbar agian and this time it successfully installed.
+I used nano to open a new file named "target.txt" and in there I put my Windows Server ip address and the username.
+I ran the cmd: "crowbar -b rdp -u Administrator -C username-wordlist.txt -s 45.63.57.62/32"  crowbar specifies to use the crowbar service, -b specifies the rdp service, -u is the user account, -C is the wordlist containg the a bunch of different passwords that I want to try and authenticate with, -s is for the target ip address. I used a /32 notation because I only want to target the one IP address.
+Within 7seconds it was able to gain access into the target machine.
+![image](https://github.com/user-attachments/assets/d54d7edc-604c-4aab-847a-a5e4c84af676)
+I used the xfreerdp service to rdp into the machine using the command: "xfreerdp /u:Administrator /p:Winter2024! /v:45.63.57.62:3389" and I was able to rdp into the Windows Server using my Kali Linux VM:
+![image](https://github.com/user-attachments/assets/fe66748f-bbb3-4114-8e2d-9b20e2358caf)
+I opened the command Prompt and typed in "net user Administrator" to see what type of groups the account was added to.
+I went to settings and disabled windows defender.
+I then SShd into the Mythic Server
+
+
 
 
 
