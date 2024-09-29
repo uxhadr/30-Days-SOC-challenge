@@ -679,12 +679,74 @@ download C:\Users\Administrator\Documents\passwords.txt
 Once the command completed, I navigated to the **Files** section in Mythic and successfully viewed the contents of `passwords.txt`:
 ![Passwords File Contents](https://github.com/user-attachments/assets/dc22e6c2-6d73-49ce-a5f2-173523d32dbe)
 
+### **Day 22: Creating Mythic C2 Alert**
 
+Today, I set up an alert in Elastic to monitor for the **Apollo** agent, which is part of my **Mythic C2** infrastructure.
 
+#### **Step 1: Searching for `apolo.exe`**
+I began by searching for the Mythic executable `apolo.exe` in Elastic. This was the file name of the agent I had deployed. To narrow down the results, I added the filter `event.code:1`, which logs process creation events and captures MD5 hashes of executables. This can help detect malicious files. 
 
+Once I found the relevant event, I clicked on it and copied the associated hash:
+![Event Hash](https://github.com/user-attachments/assets/d5ed3d55-951c-4b9b-a25f-a6efa5f95b31)
 
+#### **Step 2: Checking the Hash with VirusTotal**
+Next, I used **VirusTotal** to analyze the SHA256 hash:
+```bash
+SHA256=5FFAF58B7C811C6C66EEE07164B1227E1AC108BB611EB01509FEA333C538FF76
+```
+Since this was a newly generated Mythic agent, there were no existing matches in VirusTotal.
 
+#### **Step 3: Creating a Query for Detection**
+I created a query in Elastic to detect when a process is created (`event.code:1`) and show the **SHA256** hash of the Mythic agent:
+```bash
+event.code: "1" AND (winlog.event_data.Hashes: *5FFAF58B7C811C6C66EEE07164B1227E1AC108BB611EB01509FEA333C538FF76* OR winlog.event_data.OriginalFileName : "Apollo.exe")
+```
 
+#### **Step 4: Setting Up a Detection Rule**
+To automate this detection, I navigated to **Security > Rules** in Elastic, clicked on **Detection Rules**, and selected **Create New Rule**. For the required fields, I filled in the following:
+![Detection Rule Fields](https://github.com/user-attachments/assets/9f37b97d-1c2e-4911-83a8-dd4af61813e8)
 
+- **Rule Name**: `Mythic C2 Apollo Agent Detected`
+- **Severity**: `Critical`
+- **Frequency**: Every 5 minutes with a 5-minute look-back window
+
+I saved and enabled the rule.
+
+#### **Step 5: Creating a Dashboard**
+To enhance my monitoring capabilities, I built a dashboard that looks for the following:
+
+1. **Process Creation via PowerShell, CMD, or rundll32:**
+```bash
+event.code: "1" AND event.provider : "Microsoft-Windows-Sysmon" AND (powershell OR cmd OR rundll32)
+```
+![Dashboard - Process Creation](https://github.com/user-attachments/assets/8aa9f47a-8126-4465-9934-360f2d2a1340)
+
+2. **Network Connection Initiation:**
+```bash
+event.code: "3" AND event.provider : "Microsoft-Windows-Sysmon" AND winlog.event_data.Initiated : "true"
+```
+![Dashboard - Network Connection](https://github.com/user-attachments/assets/aff27b52-48bd-4808-a81b-bf6bfdbce85d)
+
+3. **Windows Defender Alerts:**
+```bash
+event.code: "5001" AND event.provider : "Microsoft-Windows-Windows Defender"
+```
+![Dashboard - Defender Alerts](https://github.com/user-attachments/assets/24928035-0f90-42ad-adbe-f4c7977d7723)
+
+### **Day 23: What is a Ticketing System?**
+
+A **Ticketing System** is a tool that manages and tracks various types of requests or issues within an organization. These requests, known as **tickets**, can represent:
+
+- Alerts
+- Customer complaints
+- Troubleshooting requests
+- Any service or support-related request
+
+#### **Popular Ticketing Systems**
+Some widely-used ticketing systems include:
+- **Jira**
+- **Zendesk**
+- **ServiceNow**
+- **OSTicket**
 
 
