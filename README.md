@@ -743,10 +743,69 @@ A **Ticketing System** is a tool that manages and tracks various types of reques
 - Any service or support-related request
 
 #### **Popular Ticketing Systems**
-Some widely-used ticketing systems include:
+Some widely used ticketing systems include:
 - **Jira**
 - **Zendesk**
 - **ServiceNow**
 - **OSTicket**
+
+### **Day 24: OSTicket Setup**
+I deployed a new server with Windows Standard 2022 as the image and connected it to the VPC.
+I added the `SSH-only` firewall from earlier.
+I used RDP to access the server. I opened the web browser and looked up `xampp`, clicked on the first link and then downloaded the 8.2.12 version for Windows.
+After it was installed, I went to where it was located and  I clicked on properties, and then edit
+![image](https://github.com/user-attachments/assets/5e9b1767-e181-4945-99e9-f40ce16b1eed)
+I changed the `apache_domainname` to my public ip address and saved it.
+Next I went to the `phpMyAdmin` directory and configured the `config.inc.php` and changed the local host server to my public ip address, and then saved it.
+Next I wnt to Windows Defender Firewall and created a new rule to allow inbound connections to port 80 and 443.
+I went to the xampp control panel and started the Apache, and MySQL service.
+I tried to acces PhpMyAdmin and got an `access denied` error page
+![image](https://github.com/user-attachments/assets/a3fd9540-9be9-4948-a112-cc9058449f5d)
+I changed the config.inc.php` server host back to local host: `127.0.0.1` and then tried to connect to PhpMyAdmin again and this time it was successful.
+I clicked on User accounts and then clicked on the root username with localhost as the hostname. I clicked on login information changed the Host name to use my public ip address and changed the password to `Winter2024!`
+I went to the config.inc file and then changed the localhost agian to my public ip address, and also changed the password to `Winter2024!`
+I went to the xampp control panel and clicked on `Admin` for Apache,and then selected phpMyAdmin and got the error `Access denied for user 'pma'@'OSTicket'. 
+So I clicked on User accounts and then edited the pma username 's login information to have my public ip adddress as the hostname, and also changed the password. I went back to the `cofig.nic` file and changed the password under pma.
+I saved it and opened the Admin for Apache again, and this time I didn't get an error when I selected phpMyAdmin.
+Next step is to install OsTicket. I opened a new tab and searched download OsTicket and selected Self-Hosted. I downloaded the free Open Source version.
+Once it was downloaded I extracted it, and now saw two different files. I copied the files into a new folder I named OsTicket under: `C:\xampp\htdocs`
+Iopened my browser aand serached up: [mypublicip/osticket/upload]
+![image](https://github.com/user-attachments/assets/8ab01592-aef1-4712-9cf0-50da2b4e38ca)
+OsTicket asked me to `Rename the sample file include/ost-sampleconfig.php to ost-config.php and click continue below` 
+I went to: `C:\xampp\htdocs\osticket\upload\include` and renamed the file, and then went back to OsTicket and clicked continue. Next, I enterd basic installation information. In the Database settigns I created a new MySQL Database and named it Soc-Lab-DB and changed the Hostname to my public ip address.
+I cliked on continue and got the error:`This page isn’t working right now   [My public ip] can't currently handle this request.`
+I realized I needed to  create the database first, in phpMyAdmin. I created the database and updated the priviliges for the root account. I entered the basic installation information agiain and it succesful.
+![image](https://github.com/user-attachments/assets/c5766540-b369-415f-878d-2e858b8cc777`
+I opened up PowerShell with admin privileges, and navigated to: `cd C:\xampp\htdocs\osticket\upload\include` and then typed in the command: ` icacls .\ost-config.php /reset`
+
+### **Day 25: OSTicket + ELK Integration**
+I wnet to OSTicket and clicked on `Agent Panel` and then navigated to the Manage section. Clicked on API and then `Add New API Key`. Since my OSTicket and ELK server were on the same VPC, I used the private IP address. For the services I checked `Can Create Tickets`.
+I went to elastic and clicked on , and under Alerts and Insights I clicked on connectors. By default I couldn't use API keys, so I had to start a free 30-day subscription on Elastic.
+I chose `Webhook` as the connector
+![image](https://github.com/user-attachments/assets/4c01e77f-b429-4b10-9436-a237dbe9fd0d)
+I selected Add HTTTP header and for the Key I put `X-API-key` and for the value I put in the API Key I generated form OSTicket.
+I went to the following link and copied the XML Payload Example: `https://github.com/osTicket/osTicket/blob/develop/setup/doc/api/tickets.md`
+I pasted the code into the Test section and clicked on run and got the error: `Test failed to run`
+After troubleshooting I realized that the OSTicket server wasan't showing the private VPC address. SO I went to network adapter setings and changed the Instance's 0 AUtoconfiguration IPv4 Address to the VPC private IP address.
+![image](https://github.com/user-attachments/assets/e47bbe24-67d6-4b84-93b9-c8e5dc4c6dc1)
+I also went back to my connector configuration and changed the IP address from my public ip address to the private VPC address
+![image](https://github.com/user-attachments/assets/3a102e59-847d-4aa5-ac12-d1400d8a155a)
+And now when I reran the test, it was succesful
+I went to the OSTicket website and under Tickets the ticket I just created showed up
+![image](https://github.com/user-attachments/assets/dce52186-761e-40ff-959d-4c62e4f41f4b)
+
+### **Day 26: Investigating SSH Brute Force Attack**
+I went to elastic and under security I selected alerts. I was surprised to see that I had 119 alerts!
+![image](https://github.com/user-attachments/assets/60807cb4-083b-4d93-99cb-bd3f99c76e3e)
+When investigating Brute Force Attacks I will be looking for: Is the IP known to perform brute force activities? Are any other users affected by this IP?  Were any of them succesful?
+
+
+
+
+
+
+
+
+
 
 
