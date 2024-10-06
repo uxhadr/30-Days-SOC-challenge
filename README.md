@@ -795,13 +795,44 @@ I went to the OSTicket website and under Tickets the ticket I just created showe
 ![image](https://github.com/user-attachments/assets/dce52186-761e-40ff-959d-4c62e4f41f4b)
 
 ### **Day 26: Investigating SSH Brute Force Attack**
-I went to elastic and under security I selected alerts. I was surprised to see that I had 119 alerts!
+I went to elastic and under security I selected alerts. I was surprised to see that I had 119 alerts just in the past 24hrs!
 ![image](https://github.com/user-attachments/assets/60807cb4-083b-4d93-99cb-bd3f99c76e3e)
-When investigating Brute Force Attacks I will be looking for: Is the IP known to perform brute force activities? Are any other users affected by this IP?  Were any of them succesful?
+When investigating Brute Force Attacks I will be looking for: `Is the IP known to perform brute force activities? Are any other users affected by this IP?  Were any of them succesful?`
+I went to `Abuseipdp.com` and looked up one of the ip addrresses that generated an alert: `	221.11.25.218`.
+I found out that the ip was reported 331 times and that it was originated from China
+<img width="1409" alt="image" src="https://github.com/user-attachments/assets/fc5eaff5-b807-4731-8889-aea66da42750">
+The IP was reported by to have perfome Brute-Force attacks by alot of people from diffrent countries.
+I was looked up the ip address on `greynoise.io` which also reported that it was malicious and I also learned that the IP  is a ZMap cllinet.
+<img width="1434" alt="image" src="https://github.com/user-attachments/assets/72fcacfb-d290-4452-a29d-24605fc9bdeb">
+Next I looked to see if any other users were affected by the same ip, and saw that 6  users were affected by the IP. 
+I then looked if any of the attempts were succesful - None of them were successful in the last 30days. If it was succesful I would want to know what activities did they perform after logging in.
+Under security I clicked on rules and then `Detectioon rules(SIEM)`, and then clicked on the SSH brute force attempt rule. I clicked on edit rule settings, and then under actions I clicked on Webhook. `OSTicket` showed up automatically and I edited it the action frequency to for each alert per rule run.
+For the body, I copied the XML payload example on OSTicket's github and then removed the attatchments and IP and only left the message.
+<img width="797" alt="image" src="https://github.com/user-attachments/assets/45a7a7d4-b1ca-4108-8981-876cc794979c">
+I logged into OSTicket and there were alot of `SSH Brute Force Attempt` tickets generated
+<img width="1053" alt="image" src="https://github.com/user-attachments/assets/2db9b5e3-b1bf-45fa-9353-63a59d15fa96">
+I went back to elastic and under my rule I changed the code to add`context.rule.investigation_fields`
+
+I SSHed into the elastic terminal and typed in the command: `nano /etc/kibana/kibana.yml` then edited the `service.publicBaseUrl:` to `http://[elastic server's public ip:5601`
+I went back to my elastic rules and under the code i added: `Link:{{rule.url}}` so that it would generate a link in OSTicket that would lead me to kibana.
+I went to OSTIcket, clicked on the newest link and assigned it to myself. I also closed the ticket when I was done working on it.
+
+### **Day 27: Investigating RDP Brute Force Attack**
+ 
 
 
 
 
+
+
+
+
+
+
+
+
+
+Last generated alert: 10/6/24   2:31:15
 
 
 
