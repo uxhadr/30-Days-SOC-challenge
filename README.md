@@ -818,7 +818,22 @@ I went back to my elastic rules and under the code i added: `Link:{{rule.url}}` 
 I went to OSTIcket, clicked on the newest link and assigned it to myself. I also closed the ticket when I was done working on it.
 
 ### **Day 27: Investigating RDP Brute Force Attack**
- 
+ I went to elastic and under security I clicked on alerts, and then I selected `RDP Brute Force Attacks` and clicked on edit rule setting and under actions clicked on Webhooks. I copied the same code from the SSH Brute Force Attack into the body.Next I went to alerts, and clicled on the first alert under the `RDP Brute Force Attacks` . I copied and pasted the ip address into `AbuseIPDB` and found out that it was from Thailand and it had been reported 74 times. 
+<img width="1352" alt="image" src="https://github.com/user-attachments/assets/7c52c275-fe70-47d9-bcb7-aad69bb8a716">
+Next I put the same ip into `greynoise.io` whic reported that it has identified scanning from that IP, howeverit couldn,t verify its intent.
+<img width="1072" alt="image" src="https://github.com/user-attachments/assets/4c83986e-cb0c-4ffa-a797-b43251299148">
+<img width="1415" alt="image" src="https://github.com/user-attachments/assets/ed6ac6c1-f9ab-47b8-b481-8eca3367226c">
+I checked to see if the ip affected any other users, but it had only tried to bruteforce the Administrator account. I checked to see if any of the attempts were succesful by adding `event.code: 4624` to the query, and there were no results matching my query meaning there wasn't any successful Brute Force Attacks.
+
+### **Day 28: Investigating Mythic Agent**
+I went to elastic and clicked on Discover,and set the calendar to the last 30 days. We're going to cheat because we alredy know my C2 agent was named `apolo.exe`. 
+If I had no idea what the name of the C2 agent was, these are the steps I would take:
+One way would be through network telemtry since an existing C2 session would have alot of back and forth traffic, meaning they would be alot of files transferred.
+You can use a tool such as RITA which would helo you detect C2 traffic.
+Another way is by looking at process creations and couple that with network creations. with sysmon network creations are event id 3. I would look for rundll32 since it used by alot of malware.
+Under my proces Initated Netwrok connections in m `Mythic Suspicious Activities` dashboard I saw suspicious executable.
+<img width="1504" alt="image" src="https://github.com/user-attachments/assets/c772096b-3986-46f0-8ed3-def8a69e40db">
+Even if the executable wasn't named `apolo.exe`, I would still question it because why is an executable in the Downloads folder trying to iniated a connection using port 80.
 
 
 
@@ -828,11 +843,14 @@ I went to OSTIcket, clicked on the newest link and assigned it to myself. I also
 
 
 
+### **Day 29-30: Elastic Defend Setup**
+Elastic has its own EDR called Elastic Defend.
+In elastic I clicked on Integrations under Mangement, and then clicked on Elastic Defend. I named it and put a description. For the configurations I selected Traditional Endpoints,and selected Complete EDR. I added the integration on the Windows Server's policy. I clicked on save and continue and then save and deploy changes. 
+Once it was done, I went to Manage under Security, then clicked on Endpoints.
 
 
 
 
-Last generated alert: 10/6/24   2:31:15
 
 
 
