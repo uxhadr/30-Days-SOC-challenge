@@ -834,14 +834,8 @@ Another way is by looking at process creations and couple that with network crea
 Under my proces Initated Netwrok connections in m `Mythic Suspicious Activities` dashboard I saw suspicious executable.
 <img width="1504" alt="image" src="https://github.com/user-attachments/assets/c772096b-3986-46f0-8ed3-def8a69e40db">
 Even if the executable wasn't named `apolo.exe`, I would still question it because why is an executable in the Downloads folder trying to iniated a connection using port 80.
-
-
-
-
-
-
-
-
+I would take the ip that executed the connection on port 80, and search for it in the logs wuith `event.code: 3` and start investigating what the ip was doing.
+MyDFIR has a good walkthrough on the steps to take. Here is a link to his video: https://youtu.be/b11TuDx_CjU?si=XEJ2UoBWcmQewKsg
 
 ### **Day 29-30: Elastic Defend Setup**
 Elastic has its own EDR called Elastic Defend.
