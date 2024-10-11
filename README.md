@@ -888,9 +888,28 @@ Even if the file wasn't named `apolo.exe`, the behavior (a file in the Downloads
 For more insights into detecting C2 agents, **MyDFIR** has a great walkthrough video, which can be found [here](https://youtu.be/b11TuDx_CjU?si=XEJ2UoBWcmQewKsg).
 
 ### **Day 29-30: Elastic Defend Setup**
-Elastic has its own EDR called Elastic Defend.
-In elastic I clicked on Integrations under Mangement, and then clicked on Elastic Defend. I named it and put a description. For the configurations I selected Traditional Endpoints,and selected Complete EDR. I added the integration on the Windows Server's policy. I clicked on save and continue and then save and deploy changes. 
-Once it was done, I went to Manage under Security, then clicked on Endpoints.
+
+**Elastic** has its own EDR (Endpoint Detection and Response) solution called **Elastic Defend**. Here's how I set it up and tested it on my **Windows Server**.
+
+1. In **Elastic**, I navigated to **Integrations** under **Management** and selected **Elastic Defend**. I named the integration, provided a description, and for the configurations, I selected **Traditional Endpoints** and **Complete EDR**. I then applied the integration to my **Windows Server's** policy, saving and deploying the changes.
+
+2. Once deployed, I went to **Manage** under **Security** and clicked on **Endpoints**. My Windows Server running Elastic Defend appeared in the list, and under actions, I selected **Isolate Host**.
+
+3. To test Elastic Defend, I RDPed into the Windows Server and attempted to run the `apolo.exe` C2 agent. **Elastic Security** blocked the execution, and I received an error message:  
+   > `Operation did not complete successfully because the file contains a virus or potentially unwanted software.`
+
+4. In **Kibana**, I opened **Discover**, searched for `malware`, and adjusted the time to the last 15 minutes, sorting the results from newest to oldest. I clicked on the first result, which was a **Malware Prevention Alert**. The agent type was **endpoint**, and the file directory was `C:\Users\Public\Downloads`. I could also view details such as the file name, file owner, and file hash.
+
+5. Additionally, I received an alert titled **Malware Prevention Alert** under **Security**. I clicked on the alert, selected **Response**, and edited the rule settings to configure a responsive action. Under **Response Actions**, I chose **Elastic Defend** and set **Isolate** as the response action:  
+   ![image](https://github.com/user-attachments/assets/9a16b655-e1e5-4b88-8e9e-9d2121d6d581)
+
+6. To further test the isolation, I went back to my **Windows Server** and initiated an infinite ping to `8.8.8.8 -t` from the command prompt. I also attempted to re-download the C2 agent via **PowerShell**, but it was blocked again by **Elastic Defend**, which automatically isolated the server. 
+
+   At this point, I checked the command prompt, and the ping was showing:  
+   > `General Failure`,  
+   indicating that the server was no longer connected to the internet:  
+   ![image](https://github.com/user-attachments/assets/0738587d-3cf9-4f9c-a622-5049408a8e5c)
+
 
 
 
