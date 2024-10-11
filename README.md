@@ -749,99 +749,148 @@ Some widely used ticketing systems include:
 - **ServiceNow**
 - **OSTicket**
 
-### **Day 24: OSTicket Setup**
-I deployed a new server with Windows Standard 2022 as the image and connected it to the VPC.
-I added the `SSH-only` firewall from earlier.
-I used RDP to access the server. I opened the web browser and looked up `xampp`, clicked on the first link and then downloaded the 8.2.12 version for Windows.
-After it was installed, I went to where it was located and  I clicked on properties, and then edit
-![image](https://github.com/user-attachments/assets/5e9b1767-e181-4945-99e9-f40ce16b1eed)
-I changed the `apache_domainname` to my public ip address and saved it.
-Next I went to the `phpMyAdmin` directory and configured the `config.inc.php` and changed the local host server to my public ip address, and then saved it.
-Next I wnt to Windows Defender Firewall and created a new rule to allow inbound connections to port 80 and 443.
-I went to the xampp control panel and started the Apache, and MySQL service.
-I tried to acces PhpMyAdmin and got an `access denied` error page
-![image](https://github.com/user-attachments/assets/a3fd9540-9be9-4948-a112-cc9058449f5d)
-I changed the config.inc.php` server host back to local host: `127.0.0.1` and then tried to connect to PhpMyAdmin again and this time it was successful.
-I clicked on User accounts and then clicked on the root username with localhost as the hostname. I clicked on login information changed the Host name to use my public ip address and changed the password to `Winter2024!`
-I went to the config.inc file and then changed the localhost agian to my public ip address, and also changed the password to `Winter2024!`
-I went to the xampp control panel and clicked on `Admin` for Apache,and then selected phpMyAdmin and got the error `Access denied for user 'pma'@'OSTicket'. 
-So I clicked on User accounts and then edited the pma username 's login information to have my public ip adddress as the hostname, and also changed the password. I went back to the `cofig.nic` file and changed the password under pma.
-I saved it and opened the Admin for Apache again, and this time I didn't get an error when I selected phpMyAdmin.
-Next step is to install OsTicket. I opened a new tab and searched download OsTicket and selected Self-Hosted. I downloaded the free Open Source version.
-Once it was downloaded I extracted it, and now saw two different files. I copied the files into a new folder I named OsTicket under: `C:\xampp\htdocs`
-Iopened my browser aand serached up: [mypublicip/osticket/upload]
-![image](https://github.com/user-attachments/assets/8ab01592-aef1-4712-9cf0-50da2b4e38ca)
-OsTicket asked me to `Rename the sample file include/ost-sampleconfig.php to ost-config.php and click continue below` 
-I went to: `C:\xampp\htdocs\osticket\upload\include` and renamed the file, and then went back to OsTicket and clicked continue. Next, I enterd basic installation information. In the Database settigns I created a new MySQL Database and named it Soc-Lab-DB and changed the Hostname to my public ip address.
-I cliked on continue and got the error:`This page isn’t working right now   [My public ip] can't currently handle this request.`
-I realized I needed to  create the database first, in phpMyAdmin. I created the database and updated the priviliges for the root account. I entered the basic installation information agiain and it succesful.
-![image](https://github.com/user-attachments/assets/c5766540-b369-415f-878d-2e858b8cc777`
-I opened up PowerShell with admin privileges, and navigated to: `cd C:\xampp\htdocs\osticket\upload\include` and then typed in the command: ` icacls .\ost-config.php /reset`
+### **Day 24:Deploying XAMPP and Installing OsTicket on Windows Server**
+I deployed a new server with **Windows Standard 2022** as the image and connected it to the **VPC**. I applied the previously configured `SSH-only` firewall.
+
+- **Accessing the Server**:  
+  I used **RDP** to access the server, opened the web browser, and searched for `xampp`. I clicked on the first link and downloaded **version 8.2.12** for Windows.
+
+- **XAMPP Installation**:  
+  After installation, I navigated to the installation directory. In the **properties** of the `apache_domainname`, I edited and changed it to my **public IP address**, then saved the file.  
+  ![image](https://github.com/user-attachments/assets/5e9b1767-e181-4945-99e9-f40ce16b1eed)
+
+- **phpMyAdmin Configuration**:  
+  Next, I went to the `phpMyAdmin` directory and edited the `config.inc.php` file, changing the **localhost server** to my **public IP address**, and saved it. I also created new inbound firewall rules in **Windows Defender Firewall** to allow connections on **ports 80** and **443**.
+
+- **Starting Services**:  
+  I started the **Apache** and **MySQL** services from the XAMPP Control Panel. Upon trying to access **phpMyAdmin**, I encountered an `Access Denied` error:
+  ![image](https://github.com/user-attachments/assets/a3fd9540-9be9-4948-a112-cc9058449f5d)
+
+- **Error Resolution**:  
+  I fixed this by changing the `config.inc.php` back to `localhost: 127.0.0.1`, and then successfully accessed **phpMyAdmin**. Inside **phpMyAdmin**, I went to **User Accounts**, selected the **root** username with localhost as the hostname, changed the hostname to my **public IP address**, and updated the password to `Winter2024!`. I then modified the `config.inc.php` file again, replacing `localhost` with my **public IP address** and updated the password.
+
+- **Handling 'pma' Access Denied Error**:  
+  After clicking on **Admin** for Apache and selecting **phpMyAdmin**, I received another error: `Access denied for user 'pma'@'OSTicket'`.  
+  I returned to **User Accounts** and updated the **pma** user to use my **public IP address** as the hostname and changed the password accordingly. I updated the **pma** password in the `config.inc.php` file and reopened **phpMyAdmin** without encountering further errors.
+
+- **Installing OsTicket**:  
+  I downloaded the free, **self-hosted** version of **OsTicket**, extracted the files, and copied them to a new folder named `OsTicket` under `C:\xampp\htdocs`. I opened my browser and navigated to `[mypublicip/osticket/upload]`. OsTicket prompted me to rename the sample config file.  
+  ![image](https://github.com/user-attachments/assets/8ab01592-aef1-4712-9cf0-50da2b4e38ca)
+
+- **Renaming Config File**:  
+  I went to `C:\xampp\htdocs\osticket\upload\include`, renamed `ost-sampleconfig.php` to `ost-config.php`, and clicked **continue**.
+
+- **Database Configuration**:  
+  During installation, I created a new **MySQL Database** named `Soc-Lab-DB` and set the hostname to my **public IP address**. However, I encountered the following error: `This page isn’t working right now [My public IP] can't currently handle this request.` I realized I hadn't created the database yet, so I created it in **phpMyAdmin** and updated the privileges for the **root** account. After re-entering the installation information, the installation was successful.
+
+  ![image](https://github.com/user-attachments/assets/c5766540-b369-415f-878d-2e858b8cc777)
+
+- **Final Steps**:  
+  I opened **PowerShell** with admin privileges, navigated to `C:\xampp\htdocs\osticket\upload\include`, and reset permissions on the `ost-config.php` file with the command:
+  ```bash
+  icacls .\ost-config.php /reset
+  ```
 
 ### **Day 25: OSTicket + ELK Integration**
-I wnet to OSTicket and clicked on `Agent Panel` and then navigated to the Manage section. Clicked on API and then `Add New API Key`. Since my OSTicket and ELK server were on the same VPC, I used the private IP address. For the services I checked `Can Create Tickets`.
-I went to elastic and clicked on , and under Alerts and Insights I clicked on connectors. By default I couldn't use API keys, so I had to start a free 30-day subscription on Elastic.
-I chose `Webhook` as the connector
-![image](https://github.com/user-attachments/assets/4c01e77f-b429-4b10-9436-a237dbe9fd0d)
-I selected Add HTTTP header and for the Key I put `X-API-key` and for the value I put in the API Key I generated form OSTicket.
-I went to the following link and copied the XML Payload Example: `https://github.com/osTicket/osTicket/blob/develop/setup/doc/api/tickets.md`
-I pasted the code into the Test section and clicked on run and got the error: `Test failed to run`
-After troubleshooting I realized that the OSTicket server wasan't showing the private VPC address. SO I went to network adapter setings and changed the Instance's 0 AUtoconfiguration IPv4 Address to the VPC private IP address.
-![image](https://github.com/user-attachments/assets/e47bbe24-67d6-4b84-93b9-c8e5dc4c6dc1)
-I also went back to my connector configuration and changed the IP address from my public ip address to the private VPC address
-![image](https://github.com/user-attachments/assets/3a102e59-847d-4aa5-ac12-d1400d8a155a)
-And now when I reran the test, it was succesful
-I went to the OSTicket website and under Tickets the ticket I just created showed up
-![image](https://github.com/user-attachments/assets/dce52186-761e-40ff-959d-4c62e4f41f4b)
+
+To integrate **OSTicket** with **ELK**, I began by accessing **OSTicket** and clicking on the **Agent Panel**. Under the **Manage** section, I navigated to the **API** section and selected **Add New API Key**. Since both **OSTicket** and **ELK** were hosted on the same **VPC**, I used the **private IP address**. For the services, I checked **Can Create Tickets**.
+
+- **Creating an Elastic Connector**:  
+  I went to **Elastic**, clicked on the **Alerts and Insights** section, and selected **Connectors**. Since the default setup didn’t allow the use of API keys, I had to start a free 30-day subscription in **Elastic**.  
+  I chose **Webhook** as the connector type:
+  ![image](https://github.com/user-attachments/assets/4c01e77f-b429-4b10-9436-a237dbe9fd0d)
+
+- **Configuring the Webhook**:  
+  I added an **HTTP Header**, using `X-API-key` as the key and the **API Key** generated from **OSTicket** as the value.  
+  I then went to [this link](https://github.com/osTicket/osTicket/blob/develop/setup/doc/api/tickets.md) and copied the **XML Payload Example** to use for testing. I pasted the XML code into the **Test** section and clicked **Run**, but encountered the error: `Test failed to run`.
+
+- **Troubleshooting the Network Configuration**:  
+  After some troubleshooting, I found that the **OSTicket server** wasn’t showing the correct **private VPC address**. I went to the **Network Adapter settings** and changed the **Instance's Autoconfiguration IPv4 Address** to match the **VPC private IP address**:  
+  ![image](https://github.com/user-attachments/assets/e47bbe24-67d6-4b84-93b9-c8e5dc4c6dc1)
+
+- **Updating the Connector Configuration**:  
+  I also returned to my **Elastic connector** configuration and replaced the **public IP address** with the **private VPC address**:  
+  ![image](https://github.com/user-attachments/assets/3a102e59-847d-4aa5-ac12-d1400d8a155a)
+
+- **Successful Test**:  
+  After making these changes, I reran the test, and this time it was successful. The newly created ticket appeared in the **OSTicket** ticketing system:  
+  ![image](https://github.com/user-attachments/assets/dce52186-761e-40ff-959d-4c62e4f41f4b)
+
 
 ### **Day 26: Investigating SSH Brute Force Attack**
-I went to elastic and under security I selected alerts. I was surprised to see that I had 119 alerts just in the past 24hrs!
-![image](https://github.com/user-attachments/assets/60807cb4-083b-4d93-99cb-bd3f99c76e3e)
-When investigating Brute Force Attacks I will be looking for: `Is the IP known to perform brute force activities? Are any other users affected by this IP?  Were any of them succesful?`
-I went to `Abuseipdp.com` and looked up one of the ip addrresses that generated an alert: `	221.11.25.218`.
-I found out that the ip was reported 331 times and that it was originated from China
-<img width="1409" alt="image" src="https://github.com/user-attachments/assets/fc5eaff5-b807-4731-8889-aea66da42750">
-The IP was reported by to have perfome Brute-Force attacks by alot of people from diffrent countries.
-I was looked up the ip address on `greynoise.io` which also reported that it was malicious and I also learned that the IP  is a ZMap cllinet.
-<img width="1434" alt="image" src="https://github.com/user-attachments/assets/72fcacfb-d290-4452-a29d-24605fc9bdeb">
-Next I looked to see if any other users were affected by the same ip, and saw that 6  users were affected by the IP. 
-I then looked if any of the attempts were succesful - None of them were successful in the last 30days. If it was succesful I would want to know what activities did they perform after logging in.
-Under security I clicked on rules and then `Detectioon rules(SIEM)`, and then clicked on the SSH brute force attempt rule. I clicked on edit rule settings, and then under actions I clicked on Webhook. `OSTicket` showed up automatically and I edited it the action frequency to for each alert per rule run.
-For the body, I copied the XML payload example on OSTicket's github and then removed the attatchments and IP and only left the message.
-<img width="797" alt="image" src="https://github.com/user-attachments/assets/45a7a7d4-b1ca-4108-8981-876cc794979c">
-I logged into OSTicket and there were alot of `SSH Brute Force Attempt` tickets generated
-<img width="1053" alt="image" src="https://github.com/user-attachments/assets/2db9b5e3-b1bf-45fa-9353-63a59d15fa96">
-I went back to elastic and under my rule I changed the code to add`context.rule.investigation_fields`
 
-I SSHed into the elastic terminal and typed in the command: `nano /etc/kibana/kibana.yml` then edited the `service.publicBaseUrl:` to `http://[elastic server's public ip:5601`
-I went back to my elastic rules and under the code i added: `Link:{{rule.url}}` so that it would generate a link in OSTicket that would lead me to kibana.
-I went to OSTIcket, clicked on the newest link and assigned it to myself. I also closed the ticket when I was done working on it.
+I accessed **Elastic** and under the **Security** section, I selected **Alerts**. To my surprise, I had 119 alerts in the past 24 hours related to potential brute force attacks!  
+![image](https://github.com/user-attachments/assets/60807cb4-083b-4d93-99cb-bd3f99c76e3e)
+
+When investigating brute force attacks, my focus is on three key questions:
+
+- **Is the IP known for performing brute force activities?**
+- **Are any other users affected by this IP?**
+- **Were any of the brute force attempts successful?**
+
+#### **Investigating the IP Address**  
+I chose one of the IP addresses that generated an alert: `221.11.25.218`. I looked it up on [AbuseIPDB](https://www.abuseipdb.com/), where I discovered that the IP had been reported **331 times**, originating from **China**.  
+![image](https://github.com/user-attachments/assets/fc5eaff5-b807-4731-8889-aea66da42750)
+
+The reports indicated that the IP was involved in brute force attacks worldwide. I also checked **GreyNoise**, which confirmed that the IP was malicious and identified it as a **ZMap client**:  
+![image](https://github.com/user-attachments/assets/72fcacfb-d290-4452-a29d-24605fc9bdeb)
+
+#### **Impact on Other Users**  
+Next, I checked whether any other users were affected by the same IP. I found that **6 users** were impacted by this brute force activity.
+
+#### **Were Any Attempts Successful?**  
+Fortunately, none of the attempts were successful in the last 30 days. However, if any attempts had succeeded, I would investigate the activities performed after logging in.
+
+#### **Setting Up Automated SSH Brute Force Alerts to OSTicket**  
+I went to **Security** > **Rules** > **Detection Rules (SIEM)** and selected the **SSH Brute Force Attempt** rule. I edited the rule settings, adding a **Webhook** action. The **OSTicket** integration was automatically displayed, and I configured the action frequency to trigger for each alert per rule run.
+
+For the body of the webhook, I used the **XML Payload Example** from [OSTicket's GitHub](https://github.com/osTicket/osTicket/blob/develop/setup/doc/api/tickets.md), removing the unnecessary attachments and IP fields, leaving only the message field:  
+![image](https://github.com/user-attachments/assets/45a7a7d4-b1ca-4108-8981-876cc794979c)
+
+#### **Results in OSTicket**  
+When I logged into **OSTicket**, I saw multiple **SSH Brute Force Attempt** tickets had been generated:  
+![image](https://github.com/user-attachments/assets/2db9b5e3-b1bf-45fa-9353-63a59d15fa96)
+
+#### **Linking Tickets to Kibana for Investigation**  
+I SSHed into the **Elastic** terminal and edited the `kibana.yml` file to update the `service.publicBaseUrl` to the public IP of my Elastic server. Then, I modified the detection rule in **Elastic** to add a link back to **Kibana** by adding the following code:  
+```yaml
+Link: {{rule.url}}
+```
+
+This allowed me to generate a link in OSTicket that leads directly to **Kibana**. I went to OSTicket, clicked the latest link, assigned the ticket to myself, and closed it once I finished the investigation.
 
 ### **Day 27: Investigating RDP Brute Force Attack**
- I went to elastic and under security I clicked on alerts, and then I selected `RDP Brute Force Attacks` and clicked on edit rule setting and under actions clicked on Webhooks. I copied the same code from the SSH Brute Force Attack into the body.Next I went to alerts, and clicled on the first alert under the `RDP Brute Force Attacks` . I copied and pasted the ip address into `AbuseIPDB` and found out that it was from Thailand and it had been reported 74 times. 
-<img width="1352" alt="image" src="https://github.com/user-attachments/assets/7c52c275-fe70-47d9-bcb7-aad69bb8a716">
-Next I put the same ip into `greynoise.io` whic reported that it has identified scanning from that IP, howeverit couldn,t verify its intent.
-<img width="1072" alt="image" src="https://github.com/user-attachments/assets/4c83986e-cb0c-4ffa-a797-b43251299148">
-<img width="1415" alt="image" src="https://github.com/user-attachments/assets/ed6ac6c1-f9ab-47b8-b481-8eca3367226c">
-I checked to see if the ip affected any other users, but it had only tried to bruteforce the Administrator account. I checked to see if any of the attempts were succesful by adding `event.code: 4624` to the query, and there were no results matching my query meaning there wasn't any successful Brute Force Attacks.
+
+I accessed **Elastic** and navigated to **Security** > **Alerts**. Under the `RDP Brute Force Attacks`, I clicked on **Edit Rule Setting** and added a **Webhook** action, similar to the SSH brute force webhook setup.
+
+Next, I selected an alert from the **RDP Brute Force Attacks** and looked up the associated IP on [AbuseIPDB](https://www.abuseipdb.com/). The IP was from **Thailand** and had been reported **74 times** for malicious activity.  
+![image](https://github.com/user-attachments/assets/7c52c275-fe70-47d9-bcb7-aad69bb8a716)
+
+I also checked the same IP on **GreyNoise**, which identified scanning from that IP but couldn't verify its intent:  
+![image](https://github.com/user-attachments/assets/4c83986e-cb0c-4ffa-a797-b43251299148)  
+![image](https://github.com/user-attachments/assets/ed6ac6c1-f9ab-47b8-b481-8eca3367226c)
+
+Upon further investigation, I found that the IP only targeted the **Administrator** account. To check for any successful brute force attempts, I added the query `event.code: 4624` to look for successful logins, but no results were returned, indicating no successful attacks.
 
 ### **Day 28: Investigating Mythic Agent**
-I went to elastic and clicked on Discover,and set the calendar to the last 30 days. We're going to cheat because we alredy know my C2 agent was named `apolo.exe`. 
-If I had no idea what the name of the C2 agent was, these are the steps I would take:
-One way would be through network telemtry since an existing C2 session would have alot of back and forth traffic, meaning they would be alot of files transferred.
-You can use a tool such as RITA which would helo you detect C2 traffic.
-Another way is by looking at process creations and couple that with network creations. with sysmon network creations are event id 3. I would look for rundll32 since it used by alot of malware.
-Under my proces Initated Netwrok connections in m `Mythic Suspicious Activities` dashboard I saw suspicious executable.
-<img width="1504" alt="image" src="https://github.com/user-attachments/assets/c772096b-3986-46f0-8ed3-def8a69e40db">
-Even if the executable wasn't named `apolo.exe`, I would still question it because why is an executable in the Downloads folder trying to iniated a connection using port 80.
-I would take the ip that executed the connection on port 80, and search for it in the logs wuith `event.code: 3` and start investigating what the ip was doing.
-MyDFIR has a good walkthrough on the steps to take. Here is a link to his video: https://youtu.be/b11TuDx_CjU?si=XEJ2UoBWcmQewKsg
+
+I opened **Elastic** and clicked on **Discover**, setting the calendar to the last 30 days. Since I already knew the name of my C2 agent was `apolo.exe`, I filtered by that. If I hadn't known the agent's name, I would have used the following methods:
+
+1. **Network Telemetry**: A C2 session would generate a lot of traffic with multiple file transfers. Tools like **RITA** can help detect C2 traffic.
+
+2. **Process and Network Creations**: By using **Sysmon**, network connections are logged as event ID 3. I would also look for suspicious processes like `rundll32.exe`, which is commonly used by malware.
+
+In my **Mythic Suspicious Activities** dashboard, I found a suspicious executable trying to initiate a network connection from the **Downloads** folder using **port 80**:  
+![image](https://github.com/user-attachments/assets/c772096b-3986-46f0-8ed3-def8a69e40db)
+
+Even if the file wasn't named `apolo.exe`, the behavior (a file in the Downloads folder making network connections) would raise suspicion. I would take the IP responsible for the connection on port 80, search for it in the logs using `event.code: 3`, and start investigating the IP's activities.
+
+For more insights into detecting C2 agents, **MyDFIR** has a great walkthrough video, which can be found [here](https://youtu.be/b11TuDx_CjU?si=XEJ2UoBWcmQewKsg).
 
 ### **Day 29-30: Elastic Defend Setup**
 Elastic has its own EDR called Elastic Defend.
 In elastic I clicked on Integrations under Mangement, and then clicked on Elastic Defend. I named it and put a description. For the configurations I selected Traditional Endpoints,and selected Complete EDR. I added the integration on the Windows Server's policy. I clicked on save and continue and then save and deploy changes. 
 Once it was done, I went to Manage under Security, then clicked on Endpoints.
-
 
 
 
